@@ -558,35 +558,26 @@ class NodeWithRandom:
 def copy_random_list(head):
     if not head:
         return None
-    
-    # Step 1: Create copy nodes interleaved
-    current = head
-    while current:
-        copy = NodeWithRandom(current.data)
-        copy.next = current.next
-        current.next = copy
-        current = copy.next
-    
-    # Step 2: Assign random pointers
-    current = head
-    while current:
-        if current.random:
-            current.next.random = current.random.next
-        current = current.next.next
-    
-    # Step 3: Separate lists
-    dummy = NodeWithRandom(0)
-    copy_prev = dummy
-    current = head
-    
-    while current:
-        copy = current.next
-        current.next = copy.next
-        copy_prev.next = copy
-        copy_prev = copy
-        current = current.next
-    
-    return dummy.next
+
+    # Map original node -> copied node
+    old_to_new = {}
+
+    # Pass 1: create all copied nodes (no pointers yet)
+    curr = head
+    while curr:
+        old_to_new[curr] = NodeWithRandom(curr.data)
+        curr = curr.next
+
+    # Pass 2: wire next/random using the map
+    curr = head
+    while curr:
+        copy = old_to_new[curr]
+        copy.next = old_to_new.get(curr.next)      # None if curr.next is None
+        copy.random = old_to_new.get(curr.random)  # None if curr.random is None
+        curr = curr.next
+
+    return old_to_new[head]
+
 ```
 **Companies**: Amazon, Facebook, Microsoft  
 **Difficulty**: Medium  
